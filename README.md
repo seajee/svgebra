@@ -2,7 +2,7 @@
 
 An immediate mode library to generate SVG files with basic shapes and functions.
 This was orignally a school assignment, but i decided to improve it further.<br>
-The library is only written in italian.
+Because of this, the library is only written in italian.
 
 ## Functionalities
 
