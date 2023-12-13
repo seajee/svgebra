@@ -230,8 +230,8 @@ void svg_parabola(float a, float b, float c)
     //   Si ha bisogno di minimo 3 punti per definire la curva:
     //
     //   1) dx <- PARABOLA_DX (Macro con un valore di default.
-    //                       Può essere qualsiasi numero dato che
-    //                       il resto della curva viene adattata)
+    //                        Può essere qualsiasi numero dato che
+    //                        il resto della curva viene adattata)
     //
     //      y <- f(dx)        Con dx si ricava la corrispettiva y
     //
