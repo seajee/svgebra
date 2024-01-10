@@ -41,6 +41,12 @@ void svg_fine()
 
 void svg_linea(int x1, int y1, int x2, int y2)
 {
+    // Linea di default con colore nero e spessore 1
+    svg_linea(x1, y1, x2, y2, "black", 1);
+}
+
+void svg_linea(int x1, int y1, int x2, int y2, const std::string& colore, int width)
+{
     // Per la linea, si usa il tag '<line>' direttamente
     //   passando i paramentri senza elaborazione
     std::cout
@@ -49,7 +55,8 @@ void svg_linea(int x1, int y1, int x2, int y2)
         << "y1=\"" << y1 << "\" "
         << "x2=\"" << x2 << "\" "
         << "y2=\"" << y2 << "\" "
-        << "style=\"stroke:rgb(0,0,0);stroke-width:1\" />";
+        << "stroke=\"" << colore << "\" "
+        << "style=\"stroke-width:" << width << "\" />";
 }
 
 void svg_triangolo(int x1, int y1, int x2, int y2, int x3, int y3)
@@ -64,6 +71,30 @@ void svg_quadrato(int x, int y, int l)
 {
     // Un quadrato è anche un rettangolo
     svg_rettangolo(x, y, l, l);
+}
+
+void svg_quadratovuoto(int x, int y, int lato)
+{
+    // Quadrato con fill trasparente, ossia vuoto
+    std::cout
+        << "<rect "
+        << "x=\"" << x << "\" "
+        << "y=\"" << y << "\" "
+        << "width=\"" << lato << "\" "
+        << "height=\"" << lato << "\" "
+        << "stroke=\"black\" fill=\"transparent\" stroke-width=\"1\"/>";
+}
+
+void svg_quadratopieno(int x, int y, int lato)
+{
+    // Quadrato riempito con colore nero
+    std::cout
+        << "<rect "
+        << "x=\"" << x << "\" "
+        << "y=\"" << y << "\" "
+        << "width=\"" << lato << "\" "
+        << "height=\"" << lato << "\" "
+        << "stroke=\"black\" fill=\"black\" stroke-width=\"1\"/>";
 }
 
 void svg_rettangolo(int x, int y, int width, int height)
@@ -90,6 +121,133 @@ void svg_cerchio(int x, int y, int r)
         << "r=\"" << r << "\" "
         << "fill=\"white\" "
         << "stroke=\"black\" />";
+}
+
+void svg_cerchio(int x, int y, int r, const std::string& colore)
+{
+    // Per le circonferenze, si usa il tag '<circle>' direttamente
+    //   passando i paramentri senza elaborazione
+    std::cout
+        << "<circle "
+        << "cx=\"" << x << "\" "
+        << "cy=\"" << y << "\" "
+        << "r=\"" << r << "\" "
+        << "fill=\"" << colore << "\" "
+        << "stroke=\"black\" />";
+}
+
+void svg_koch_quadrato(int x1, int y1, int x2, int y2, int depth)
+{
+    assert(y1 == y2 && "ERRORE: Curve di Koch inclinate non sono supportate");
+
+    svg_koch_quadrato(x1, y1, x2, y2, 0, -1, depth);
+}
+
+void svg_koch_quadrato(int x1, int y1, int x2, int y2, int xup, int yup, int depth)
+{
+    // Caso base
+    if (depth <= 0)
+        return;
+
+    // Up->Up (prima chiamata)
+    if (xup == 0 && yup == -1) {
+        int t = (int)((float)(x2 - x1) / 3);
+
+        // Base
+        svg_linea(x1, y1, x2, y1);
+        svg_linea(x2 - 2*t, y1, x2-t, y1, "white", 2);
+
+        // Quadrato
+        svg_linea(x2 - 2*t, y1, x2 - 2*t, y1-t);
+        svg_linea(x2 - 2*t, y1-t, x2-t, y1-t);
+        svg_linea(x2-t, y1, x2-t, y1-t);
+
+        // Ricorsione Up
+        svg_koch_quadrato(x1, y1, x2 - 2*t, y1, 0, -1, depth - 1);
+        svg_koch_quadrato(x2 - t, y1, x2, y1, 0, -1, depth - 1);
+        svg_koch_quadrato(x2 - 2*t, y1-t, x2 - t, y1-t, 0, -1, depth - 1);
+
+        // Ricorsione Left
+        svg_koch_quadrato(x2 - 2*t, y1, x2 - 2*t, y1 - t, -1, 0, depth - 1);
+
+        // Ricorsione Right
+        svg_koch_quadrato(x2 - t, y1 - t, x2 - t, y1, 1, 0, depth - 1);
+    }
+
+    // Up->Left
+    if (xup == -1 && yup == 0) {
+        int t = (int)((float)(y1 - y2) / 3);
+
+        // Base
+        svg_linea(x1, y1, x2, y1);
+        svg_linea(x1, y1 - t, x1, y1 - 2*t, "white", 2);
+
+        // Quadrato
+        svg_linea(x1, y1 - t, x1 - t, y1 - t);
+        svg_linea(x1 - t, y1 - t, x1 - t, y1 - 2*t);
+        svg_linea(x1 - t, y1 - 2*t, x1, y1 - 2*t);
+
+        // Ricorsione Left
+        svg_koch_quadrato(x1, y1, x1, y1 - t, -1, 0, depth - 1);
+        svg_koch_quadrato(x1 - t, y1 - t, x1 - t, y1 - 2*t, -1, 0, depth - 1);
+        svg_koch_quadrato(x1, y1 - 2*t, x1, y2, -1, 0, depth - 1);
+
+        // Ricorsione Down
+        svg_koch_quadrato(x1, y1 - t, x1 - t, y1 - t, 0, 1, depth - 1);
+
+        // Ricorsione Up
+        svg_koch_quadrato(x1 - t, y1 - 2*t, x1, y1 - 2*t, 0, -1, depth - 1);
+    }
+
+    // Up->Right
+    if (xup == 1 && yup == 0) {
+        int t = (int)((float)(y2 - y1) / 3);
+
+        // Base
+        svg_linea(x1, y1, x1, y2);
+        svg_linea(x1, y1 + t, x1, y1 + 2*t, "white", 2);
+
+        // Quadrato
+        svg_linea(x1, y1 + t, x1 + t, y1 + t);
+        svg_linea(x1 + t, y1 + t, x1 + t, y1 + 2*t);
+        svg_linea(x1 + t, y1 + 2*t, x1, y1 + 2*t);
+
+        // Ricorsione Right
+        svg_koch_quadrato(x1, y1, x1, y1 + t, 1, 0, depth - 1);
+        svg_koch_quadrato(x1 + t, y1 + t, x1 + t, y1 + 2*t, 1, 0, depth - 1);
+        svg_koch_quadrato(x1, y1 + 2*t, x1, y2, 1, 0, depth - 1);
+
+        // Ricorsione Up
+        svg_koch_quadrato(x1, y1 + t, x1 + t, y1 + t, 0, -1, depth - 1);
+
+        // Ricorsione Down
+        svg_koch_quadrato(x1 + t, y1 + 2*t, x1, y1 + 2*t, 0, 1, depth - 1);
+    }
+
+    // Up->Down
+    if (xup == 0 && yup == 1) {
+        int t = (int)((float)(x1 - x2) / 3);
+
+        // Base
+        svg_linea(x1, y1, x2, y1);
+        svg_linea(x1 - t, y1, x1 - 2*t, y1, "white", 2);
+
+        // Quadrato
+        svg_linea(x1 - t, y1, x1 - t, y1 + t);
+        svg_linea(x1 - t, y1 + t, x1 - 2*t, y1 + t);
+        svg_linea(x1 - 2*t, y1 + t, x1 - 2*t, y1);
+
+        // Ricorsione Down
+        svg_koch_quadrato(x1, y1, x1 - t, y1, 0, 1, depth - 1);
+        svg_koch_quadrato(x1 - t, y1 + t, x1 - 2*t, y1 + t, 0, 1, depth - 1);
+        svg_koch_quadrato(x1 - 2*t, y1, x2, y1, 0, 1, depth - 1);
+
+        // Ricorsione Left
+        svg_koch_quadrato(x1 - 2*t, y1 + t, x1 - 2*t, y1, -1, 0, depth - 1);
+
+        // Ricorsione Right
+        svg_koch_quadrato(x1 - t, y1, x1 - t, y1 + t, 1, 0, depth - 1);
+    }
 }
 
 void svg_testo(int x, int y, const std::string& text)
