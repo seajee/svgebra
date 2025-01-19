@@ -43,3 +43,11 @@ int main(void)
     return 0;
 }
 ```
+
+To render the example:
+
+```bash
+$ make && ./libsvgebra > example.svg
+```
+
+![example.svg](./example.svg)
