@@ -49,5 +49,3 @@ To render the example:
 ```bash
 $ make && ./libsvgebra > example.svg
 ```
-
-![example.svg](./example.svg)
